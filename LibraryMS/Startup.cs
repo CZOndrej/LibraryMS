@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using LibraryMS.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using LibraryMS.Data;
 
 namespace LibraryMS
 {

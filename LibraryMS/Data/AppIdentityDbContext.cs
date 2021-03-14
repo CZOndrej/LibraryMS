@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using LibraryMS.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
   
-namespace LibraryMS.Models
+namespace LibraryMS.Data
 {
     public class AppIdentityDbContext : IdentityDbContext<Account>
     {
