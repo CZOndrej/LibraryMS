@@ -33,27 +33,51 @@ namespace LibraryMS.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(User user)
         {
-            Address address = new Address
+            if (ModelState.IsValid)
             {
-                City = user.City,
-                Street = user.Street,
-                Zipcode = user.Zipcode,
-                State = user.State
-            };
+                Address address = new Address
+                {
+                    City = user.City,
+                    Street = user.Street,
+                    Zipcode = user.Zipcode,
+                    State = user.State
+                };
 
-            _context.Add(address);
+                _context.Add(address);
 
-            Person person = new Person
-            {
-                Email = user.Email,
-                Name = user.Name,
-                Address = address,
+                Person person = new Person
+                {
+                    Email = user.Email,
+                    Name = user.Name,
+                    Address = address,
+                    Phone = user.Phone,
+                };
 
-            };
-            Account account = new Account
-            {
-                
-            };
+                _context.Add(person);
+
+                Account account = new Account
+                {
+                    Status = AccountStatus.Active,
+                    Person = person,
+                    DateOfMembership = DateTime.Now,
+                    TotalBooksCheckedout = 0,
+                    LibraryCard = null,
+                };
+                IdentityResult result = await _userManager.CreateAsync(account, user.Password);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    foreach (IdentityError error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+            }
+            return View(user);
         }
     }
 }
