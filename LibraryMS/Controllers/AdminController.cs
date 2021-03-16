@@ -23,7 +23,7 @@ namespace LibraryMS.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View(_userManager.Users);
         }
         public ViewResult Create()
         {
