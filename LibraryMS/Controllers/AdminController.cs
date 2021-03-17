@@ -43,7 +43,7 @@ namespace LibraryMS.Controllers
                     State = user.State
                 };
 
-                _context.Add(address);
+                //_context.Add(address);
 
                 Person person = new Person
                 {
@@ -53,7 +53,7 @@ namespace LibraryMS.Controllers
                     Phone = user.Phone,
                 };
 
-                _context.Add(person);
+                //_context.Add(person);
 
                 Account account = new Account
                 {
@@ -62,6 +62,8 @@ namespace LibraryMS.Controllers
                     DateOfMembership = DateTime.Now,
                     TotalBooksCheckedout = 0,
                     LibraryCard = null,
+                    UserName = user.Name,
+                    Email = user.Email
                 };
                 IdentityResult result = await _userManager.CreateAsync(account, user.Password);
 
@@ -78,6 +80,20 @@ namespace LibraryMS.Controllers
                 }
             }
             return View(user);
+        }
+        public async Task<ViewResult> Delete(string id)
+        {
+            Account account = await _userManager.FindByIdAsync(id);
+
+            if (account != null)
+            {
+                return View(account);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Account not found!");
+                return View("Index", _userManager.Users);
+            }
         }
     }
 }

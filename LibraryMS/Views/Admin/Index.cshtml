@@ -5,18 +5,20 @@
 
 <h1 class="bg-info text-white" >Users</h1>
 <table class="table table-bordered">
-    <tr >
+    <tr>
         <th>Registration Date</th>
         <th>Name</th>
         <th>Email</th>
+        <th>Action</th>
     </tr>
     @foreach (Account acc in Model)
     {
-        <tr>
-            <td>@acc.DateOfMembership.ToString("dd.mm.yyyy")</td>
-            <td>@acc.UserName</td>
-            <td>@acc.Email</td>
-        </tr>
+<tr>
+    <td>@acc.DateOfMembership.ToString("dd.MM.yyyy")</td>
+    <td>@acc.UserName</td>
+    <td>@acc.Email</td>
+    <td><a asp-controller="Admin" asp-action="Delete" asp-route-id="@acc.Id" class="btn btn-danger">Delete</a></td>
+</tr>
     }
 </table>
 <a class="btn btn-primary" asp-controller="Admin" asp-action="Create">Create user</a>
