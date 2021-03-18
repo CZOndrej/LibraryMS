@@ -43,7 +43,6 @@ namespace LibraryMS.Controllers
                     State = user.State
                 };
 
-                //_context.Add(address);
 
                 Person person = new Person
                 {
@@ -53,16 +52,15 @@ namespace LibraryMS.Controllers
                     Phone = user.Phone,
                 };
 
-                //_context.Add(person);
 
                 Account account = new Account
                 {
-                    Status = AccountStatus.Active,
+                    Status = AccountStatus.Inactive,
                     Person = person,
                     DateOfMembership = DateTime.Now,
                     TotalBooksCheckedout = 0,
                     LibraryCard = null,
-                    UserName = user.Name,
+                    UserName = user.UserName,
                     Email = user.Email
                 };
                 IdentityResult result = await _userManager.CreateAsync(account, user.Password);
@@ -84,10 +82,30 @@ namespace LibraryMS.Controllers
         public async Task<ViewResult> Delete(string id)
         {
             Account account = await _userManager.FindByIdAsync(id);
+            _context.Entry(account).Reference(p => p.Person).Load();
+
+
 
             if (account != null)
             {
                 return View(account);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Account not found!");
+                return View("Index", _userManager.Users);
+            }
+        }
+        [HttpPost]
+        [ActionName("Delete")]
+        public async Task<IActionResult> DeletePost(string id)
+        {
+            Account account = await _userManager.FindByIdAsync(id);
+
+            if (account != null)
+            {
+                await _userManager.DeleteAsync(account);
+                return RedirectToAction("Index");
             }
             else
             {

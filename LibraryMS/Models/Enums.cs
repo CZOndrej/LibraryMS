@@ -36,6 +36,7 @@ namespace LibraryMS.Models
     public enum AccountStatus
     {
         Active,
+        Inactive,
         Closed,
         Canceled,
         Blacklisted,

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LibraryMS.Migrations
 {
-    public partial class AppIdentityToDB : Migration
+    public partial class LibraryToDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -16,7 +16,8 @@ namespace LibraryMS.Migrations
                     Street = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Zipcode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    State = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    State = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PersonId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,13 +53,42 @@ namespace LibraryMS.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Book",
+                columns: table => new
+                {
+                    ISBN = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Language = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NumberOfPages = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Book", x => x.ISBN);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LibraryCard",
+                columns: table => new
+                {
+                    Barcode = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    AccountId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LibraryCard", x => x.Barcode);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Person",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AddressId = table.Column<int>(type: "int", nullable: true),
+                    AddressId = table.Column<int>(type: "int", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -70,7 +100,7 @@ namespace LibraryMS.Migrations
                         column: x => x.AddressId,
                         principalTable: "Address",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -95,14 +125,39 @@ namespace LibraryMS.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AuthorBook",
+                columns: table => new
+                {
+                    AuthorsId = table.Column<int>(type: "int", nullable: false),
+                    BooksISBN = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthorBook", x => new { x.AuthorsId, x.BooksISBN });
+                    table.ForeignKey(
+                        name: "FK_AuthorBook_Author_AuthorsId",
+                        column: x => x.AuthorsId,
+                        principalTable: "Author",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AuthorBook_Book_BooksISBN",
+                        column: x => x.BooksISBN,
+                        principalTable: "Book",
+                        principalColumn: "ISBN",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    PersonId = table.Column<int>(type: "int", nullable: true),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
                     DateOfMembership = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalBooksCheckedout = table.Column<int>(type: "int", nullable: false),
+                    LibraryCardId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -122,11 +177,17 @@ namespace LibraryMS.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_AspNetUsers_LibraryCard_LibraryCardId",
+                        column: x => x.LibraryCardId,
+                        principalTable: "LibraryCard",
+                        principalColumn: "Barcode",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_AspNetUsers_Person_PersonId",
                         column: x => x.PersonId,
                         principalTable: "Person",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -215,74 +276,32 @@ namespace LibraryMS.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Book",
-                columns: table => new
-                {
-                    ISBN = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Language = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NumberOfPages = table.Column<int>(type: "int", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Barcode = table.Column<int>(type: "int", nullable: true),
-                    Borrowed = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Format = table.Column<int>(type: "int", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: true),
-                    DateOfPurchase = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RackPosition = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Book", x => x.ISBN);
-                    table.ForeignKey(
-                        name: "FK_Book_AspNetUsers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LibraryCard",
+                name: "BookItem",
                 columns: table => new
                 {
                     Barcode = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IssuedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Borrowed = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Format = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DateOfPurchase = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RackPosition = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BookISBN = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LibraryCard", x => x.Barcode);
+                    table.PrimaryKey("PK_BookItem", x => x.Barcode);
                     table.ForeignKey(
-                        name: "FK_LibraryCard_AspNetUsers_AccountId",
+                        name: "FK_BookItem_AspNetUsers_AccountId",
                         column: x => x.AccountId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AuthorBook",
-                columns: table => new
-                {
-                    AuthorsId = table.Column<int>(type: "int", nullable: false),
-                    BooksISBN = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AuthorBook", x => new { x.AuthorsId, x.BooksISBN });
                     table.ForeignKey(
-                        name: "FK_AuthorBook_Author_AuthorsId",
-                        column: x => x.AuthorsId,
-                        principalTable: "Author",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AuthorBook_Book_BooksISBN",
-                        column: x => x.BooksISBN,
+                        name: "FK_BookItem_Book_BookISBN",
+                        column: x => x.BookISBN,
                         principalTable: "Book",
                         principalColumn: "ISBN",
                         onDelete: ReferentialAction.Cascade);
@@ -296,7 +315,7 @@ namespace LibraryMS.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    BookItemISBN = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    BookItemBarcode = table.Column<int>(type: "int", nullable: true),
                     AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -309,10 +328,10 @@ namespace LibraryMS.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_BookReservation_Book_BookItemISBN",
-                        column: x => x.BookItemISBN,
-                        principalTable: "Book",
-                        principalColumn: "ISBN",
+                        name: "FK_BookReservation_BookItem_BookItemBarcode",
+                        column: x => x.BookItemBarcode,
+                        principalTable: "BookItem",
+                        principalColumn: "Barcode",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -349,9 +368,17 @@ namespace LibraryMS.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_LibraryCardId",
+                table: "AspNetUsers",
+                column: "LibraryCardId",
+                unique: true,
+                filter: "[LibraryCardId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_PersonId",
                 table: "AspNetUsers",
-                column: "PersonId");
+                column: "PersonId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -366,9 +393,14 @@ namespace LibraryMS.Migrations
                 column: "BooksISBN");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Book_AccountId",
-                table: "Book",
+                name: "IX_BookItem_AccountId",
+                table: "BookItem",
                 column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookItem_BookISBN",
+                table: "BookItem",
+                column: "BookISBN");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookReservation_AccountId",
@@ -376,21 +408,15 @@ namespace LibraryMS.Migrations
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookReservation_BookItemISBN",
+                name: "IX_BookReservation_BookItemBarcode",
                 table: "BookReservation",
-                column: "BookItemISBN");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_LibraryCard_AccountId",
-                table: "LibraryCard",
-                column: "AccountId",
-                unique: true,
-                filter: "[AccountId] IS NOT NULL");
+                column: "BookItemBarcode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Person_AddressId",
                 table: "Person",
-                column: "AddressId");
+                column: "AddressId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -417,19 +443,22 @@ namespace LibraryMS.Migrations
                 name: "BookReservation");
 
             migrationBuilder.DropTable(
-                name: "LibraryCard");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Author");
 
             migrationBuilder.DropTable(
-                name: "Book");
+                name: "BookItem");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Book");
+
+            migrationBuilder.DropTable(
+                name: "LibraryCard");
 
             migrationBuilder.DropTable(
                 name: "Person");

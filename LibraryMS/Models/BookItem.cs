@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace LibraryMS.Models
 {
-    public class BookItem: Book
+    public class BookItem
     {
+        [Key]
         public int Barcode { get; set; }
         public DateTime Borrowed { get; set; }
         public DateTime DueDate { get; set; }
@@ -15,8 +16,8 @@ namespace LibraryMS.Models
         public BookStatus Status { get; set; }
         public DateTime DateOfPurchase { get; set; }
         public string RackPosition { get; set; }
+        public Book Book { get; set; }
 
-        
-
+        public string BookISBN { get; set; }
     }
 }

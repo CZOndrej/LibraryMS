@@ -56,6 +56,9 @@ namespace LibraryMS.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("LibraryCardId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -73,7 +76,7 @@ namespace LibraryMS.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PersonId")
+                    b.Property<int>("PersonId")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
@@ -100,6 +103,10 @@ namespace LibraryMS.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LibraryCardId")
+                        .IsUnique()
+                        .HasFilter("[LibraryCardId] IS NOT NULL");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -108,7 +115,8 @@ namespace LibraryMS.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("PersonId")
+                        .IsUnique();
 
                     b.ToTable("AspNetUsers");
                 });
@@ -122,6 +130,9 @@ namespace LibraryMS.Migrations
 
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
 
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(max)");
@@ -160,10 +171,6 @@ namespace LibraryMS.Migrations
                     b.Property<string>("ISBN")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Language")
                         .HasColumnType("nvarchar(max)");
 
@@ -176,8 +183,46 @@ namespace LibraryMS.Migrations
                     b.HasKey("ISBN");
 
                     b.ToTable("Book");
+                });
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Book");
+            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
+                {
+                    b.Property<int>("Barcode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BookISBN")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Borrowed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfPurchase")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Format")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RackPosition")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Barcode");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("BookISBN");
+
+                    b.ToTable("BookItem");
                 });
 
             modelBuilder.Entity("LibraryMS.Models.BookReservation", b =>
@@ -190,8 +235,8 @@ namespace LibraryMS.Migrations
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("BookItemISBN")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int?>("BookItemBarcode")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
@@ -203,7 +248,7 @@ namespace LibraryMS.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex("BookItemISBN");
+                    b.HasIndex("BookItemBarcode");
 
                     b.ToTable("BookReservation");
                 });
@@ -216,7 +261,7 @@ namespace LibraryMS.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("AccountId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -225,10 +270,6 @@ namespace LibraryMS.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Barcode");
-
-                    b.HasIndex("AccountId")
-                        .IsUnique()
-                        .HasFilter("[AccountId] IS NOT NULL");
 
                     b.ToTable("LibraryCard");
                 });
@@ -240,7 +281,7 @@ namespace LibraryMS.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AddressId")
+                    b.Property<int>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -254,7 +295,8 @@ namespace LibraryMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId");
+                    b.HasIndex("AddressId")
+                        .IsUnique();
 
                     b.ToTable("Person");
                 });
@@ -390,39 +432,6 @@ namespace LibraryMS.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
-                {
-                    b.HasBaseType("LibraryMS.Models.Book");
-
-                    b.Property<string>("AccountId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Barcode")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Borrowed")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateOfPurchase")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Format")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RackPosition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasDiscriminator().HasValue("BookItem");
-                });
-
             modelBuilder.Entity("AuthorBook", b =>
                 {
                     b.HasOne("LibraryMS.Models.Author", null)
@@ -440,11 +449,33 @@ namespace LibraryMS.Migrations
 
             modelBuilder.Entity("LibraryMS.Models.Account", b =>
                 {
+                    b.HasOne("LibraryMS.Models.LibraryCard", "LibraryCard")
+                        .WithOne("Account")
+                        .HasForeignKey("LibraryMS.Models.Account", "LibraryCardId");
+
                     b.HasOne("LibraryMS.Models.Person", "Person")
-                        .WithMany()
-                        .HasForeignKey("PersonId");
+                        .WithOne("Account")
+                        .HasForeignKey("LibraryMS.Models.Account", "PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LibraryCard");
 
                     b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
+                {
+                    b.HasOne("LibraryMS.Models.Account", null)
+                        .WithMany("Borrows")
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("LibraryMS.Models.Book", "Book")
+                        .WithMany("BookItems")
+                        .HasForeignKey("BookISBN")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Book");
                 });
 
             modelBuilder.Entity("LibraryMS.Models.BookReservation", b =>
@@ -455,25 +486,18 @@ namespace LibraryMS.Migrations
 
                     b.HasOne("LibraryMS.Models.BookItem", "BookItem")
                         .WithMany()
-                        .HasForeignKey("BookItemISBN");
+                        .HasForeignKey("BookItemBarcode");
 
                     b.Navigation("BookItem");
-                });
-
-            modelBuilder.Entity("LibraryMS.Models.LibraryCard", b =>
-                {
-                    b.HasOne("LibraryMS.Models.Account", "Account")
-                        .WithOne("LibraryCard")
-                        .HasForeignKey("LibraryMS.Models.LibraryCard", "AccountId");
-
-                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("LibraryMS.Models.Person", b =>
                 {
                     b.HasOne("LibraryMS.Models.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
+                        .WithOne("Person")
+                        .HasForeignKey("LibraryMS.Models.Person", "AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Address");
                 });
@@ -529,20 +553,31 @@ namespace LibraryMS.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
-                {
-                    b.HasOne("LibraryMS.Models.Account", null)
-                        .WithMany("Borrows")
-                        .HasForeignKey("AccountId");
-                });
-
             modelBuilder.Entity("LibraryMS.Models.Account", b =>
                 {
                     b.Navigation("Borrows");
 
-                    b.Navigation("LibraryCard");
-
                     b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("LibraryMS.Models.Address", b =>
+                {
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("LibraryMS.Models.Book", b =>
+                {
+                    b.Navigation("BookItems");
+                });
+
+            modelBuilder.Entity("LibraryMS.Models.LibraryCard", b =>
+                {
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("LibraryMS.Models.Person", b =>
+                {
+                    b.Navigation("Account");
                 });
 #pragma warning restore 612, 618
         }

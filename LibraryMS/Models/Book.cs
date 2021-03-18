@@ -14,5 +14,8 @@ namespace LibraryMS.Models
         public string Language { get; set; }
         public int NumberOfPages { get; set; }
         public virtual ICollection<Author> Authors { get; set; }
+
+        public virtual ICollection<BookItem> BookItems { get; set; }
+
     }
 }

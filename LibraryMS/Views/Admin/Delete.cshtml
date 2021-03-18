@@ -16,10 +16,13 @@
         <th>Registration date</th>
     </tr>
     <tr>
-        <td>@Model.LibraryCard</td>
-        <td>@Model.UserName</td>
+        <td>@Model.Id</td>
+        <td>@Model.Person.Name</td>
         <td>@Model.Email</td>
         <td>@Model.DateOfMembership</td>
     </tr>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+        <button type="submit" class="btn btn-danger">Delete account</button>
+    </form>
 </table>
 
