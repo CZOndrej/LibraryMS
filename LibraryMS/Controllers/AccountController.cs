@@ -29,7 +29,7 @@ namespace LibraryMS.Controllers
         public IActionResult Login(string returnUrl)
         {
             Login login = new Login();
-            login.ReturnURL = returnUrl;
+            login.ReturnUrl = returnUrl;
             return View(login);
         }
         [HttpPost]
@@ -46,12 +46,17 @@ namespace LibraryMS.Controllers
                     Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(account, login.Password, false, false);
                     if (result.Succeeded)
                     {
-                        return Redirect(login.ReturnURL ?? "/");
+                        return Redirect(login.ReturnUrl ?? "/");
                     }
                     ModelState.AddModelError(nameof(login.Email), "Login failed, Invalid email or password");
                 }
             }
             return View(login);
+        }
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
     }
 }

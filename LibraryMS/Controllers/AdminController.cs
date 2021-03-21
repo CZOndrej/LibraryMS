@@ -1,5 +1,6 @@
 ﻿using LibraryMS.Data;
 using LibraryMS.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace LibraryMS.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly UserManager<Account> _userManager;
