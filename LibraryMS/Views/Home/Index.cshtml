@@ -1,8 +1,16 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "LibraryMS";
 }
+@model Account
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Online Library</h1>
+    @if (Model == null)
+    {
+        <p>Please <a asp-controller="Account" asp-action="Login">Login</a> to continue..</p>
+    }
+    else
+    {
+        <p>Welcome back @Model.UserName</p>
+    }
 </div>
