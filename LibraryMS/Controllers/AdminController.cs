@@ -10,31 +10,44 @@ using System.Threading.Tasks;
 
 namespace LibraryMS.Controllers
 {
-    [Authorize]
+    [Authorize (Roles="Admin")]
     public class AdminController : Controller
     {
         private readonly UserManager<Account> _userManager;
         private readonly AppIdentityDbContext _context;
+        private readonly SignInManager<Account> _signInManager;
 
 
-        public AdminController(UserManager<Account> userManager, AppIdentityDbContext context)
+        public AdminController(UserManager<Account> userManager, AppIdentityDbContext context, SignInManager<Account> signInManager)
         {
             _userManager = userManager;
             _context = context;
+            _signInManager = signInManager;
         }
 
         public IActionResult Index()
         {
             return View(_userManager.Users);
         }
-        public ViewResult Create()
+        [AllowAnonymous]
+        public async Task<IActionResult> Create()
         {
+            if (_signInManager.IsSignedIn(User))
+            {
+                if (await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Admin"))
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
+
         public async Task<IActionResult> Create(User user)
         {
+            
             if (ModelState.IsValid)
             {
                 Address address = new Address
