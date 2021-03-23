@@ -25,6 +25,7 @@ namespace LibraryMS.Controllers
         {
             return View();
         }
+
         [AllowAnonymous]
         public IActionResult Login(string returnUrl)
         {
