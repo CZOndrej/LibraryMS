@@ -128,5 +128,21 @@ namespace LibraryMS.Controllers
                 return View("Index", _userManager.Users);
             }
         }
+
+        public async Task<ViewResult> Detail(string id)
+        {
+            Account account = await _userManager.FindByIdAsync(id);
+            _context.Entry(account).Reference(p => p.Person).Load();
+
+            if (account != null)
+            {
+                return View(account);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Account not found!");
+                return View("Index", _userManager.Users);
+            }
+        }
     }
 }

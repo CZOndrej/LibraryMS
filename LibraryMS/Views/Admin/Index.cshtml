@@ -11,13 +11,13 @@
         <th>Email</th>
         <th>Action</th>
     </tr>
-    @foreach (Account acc in Model)
+    @foreach (Account account in Model)
     {
 <tr>
-    <td>@acc.DateOfMembership.ToString("dd.MM.yyyy")</td>
-    <td>@acc.UserName</td>
-    <td>@acc.Email</td>
-    <td><a asp-controller="Admin" asp-action="Delete" asp-route-id="@acc.Id" class="btn btn-danger">Delete</a></td>
+    <td>@account.DateOfMembership.ToString("dd.MM.yyyy")</td>
+    <td>@account.UserName</td>
+    <td>@account.Email</td>
+    <td><a asp-controller="Admin" asp-action="Delete" asp-route-id="@account.Id" class="btn btn-danger">Delete</a><a asp-controller="Admin" asp-action="Detail" asp-route-id="@account.Id" class="btn btn-primary">Detail</a></td>
 </tr>
     }
 </table>
