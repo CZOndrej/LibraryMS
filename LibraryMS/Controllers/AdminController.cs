@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LibraryMS.Controllers
 {
-    [Authorize (Roles="Admin")]
+    [Authorize (Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly UserManager<Account> _userManager;
@@ -34,7 +34,7 @@ namespace LibraryMS.Controllers
         {
             if (_signInManager.IsSignedIn(User))
             {
-                if (await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Admin"))
+                if (await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Member"))
                 {
                     return RedirectToAction("Index", "Home");
                 }

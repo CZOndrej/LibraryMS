@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace LibraryMS.Models
 {
-    public class Book
+    public class CreateBook
     {
-        [Key]
+        public string Name { get; set; }
+        public string Description { get; set; }
         public string ISBN { get; set; }
         public string Title { get; set; }
         public string Language { get; set; }
         public int NumberOfPages { get; set; }
-        public virtual ICollection<Author> Authors { get; set; }
-        public virtual ICollection<BookItem> BookItems { get; set; }
-
     }
 }

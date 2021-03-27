@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace LibraryMS.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -26,12 +27,9 @@ namespace LibraryMS.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (_signInManager.IsSignedIn(User))
-            {
                 Account account = await _userManager.GetUserAsync(User);
+                
                 return View(account);
-            }
-            return View();
         }
 
         public IActionResult Privacy()

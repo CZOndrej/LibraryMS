@@ -171,6 +171,10 @@ namespace LibraryMS.Migrations
                     b.Property<string>("ISBN")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Language")
                         .HasColumnType("nvarchar(max)");
 
@@ -183,46 +187,8 @@ namespace LibraryMS.Migrations
                     b.HasKey("ISBN");
 
                     b.ToTable("Book");
-                });
 
-            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
-                {
-                    b.Property<int>("Barcode")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("AccountId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("BookISBN")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("Borrowed")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateOfPurchase")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Format")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RackPosition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Barcode");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("BookISBN");
-
-                    b.ToTable("BookItem");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Book");
                 });
 
             modelBuilder.Entity("LibraryMS.Models.BookReservation", b =>
@@ -235,8 +201,8 @@ namespace LibraryMS.Migrations
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("BookItemBarcode")
-                        .HasColumnType("int");
+                    b.Property<string>("BookItemISBN")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
@@ -248,7 +214,7 @@ namespace LibraryMS.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex("BookItemBarcode");
+                    b.HasIndex("BookItemISBN");
 
                     b.ToTable("BookReservation");
                 });
@@ -432,6 +398,44 @@ namespace LibraryMS.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
+                {
+                    b.HasBaseType("LibraryMS.Models.Book");
+
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Barcode")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BookISBN")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Borrowed")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfPurchase")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Format")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RackPosition")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("BookISBN");
+
+                    b.HasDiscriminator().HasValue("BookItem");
+                });
+
             modelBuilder.Entity("AuthorBook", b =>
                 {
                     b.HasOne("LibraryMS.Models.Author", null)
@@ -464,20 +468,6 @@ namespace LibraryMS.Migrations
                     b.Navigation("Person");
                 });
 
-            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
-                {
-                    b.HasOne("LibraryMS.Models.Account", null)
-                        .WithMany("Borrows")
-                        .HasForeignKey("AccountId");
-
-                    b.HasOne("LibraryMS.Models.Book", "Book")
-                        .WithMany("BookItems")
-                        .HasForeignKey("BookISBN")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Book");
-                });
-
             modelBuilder.Entity("LibraryMS.Models.BookReservation", b =>
                 {
                     b.HasOne("LibraryMS.Models.Account", null)
@@ -486,7 +476,7 @@ namespace LibraryMS.Migrations
 
                     b.HasOne("LibraryMS.Models.BookItem", "BookItem")
                         .WithMany()
-                        .HasForeignKey("BookItemBarcode");
+                        .HasForeignKey("BookItemISBN");
 
                     b.Navigation("BookItem");
                 });
@@ -551,6 +541,17 @@ namespace LibraryMS.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("LibraryMS.Models.BookItem", b =>
+                {
+                    b.HasOne("LibraryMS.Models.Account", null)
+                        .WithMany("Borrows")
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("LibraryMS.Models.Book", null)
+                        .WithMany("BookItems")
+                        .HasForeignKey("BookISBN");
                 });
 
             modelBuilder.Entity("LibraryMS.Models.Account", b =>

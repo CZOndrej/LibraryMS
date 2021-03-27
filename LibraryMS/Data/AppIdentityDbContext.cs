@@ -12,6 +12,7 @@ namespace LibraryMS.Data
         public DbSet<BookItem> BookItem { get; set; }
         public DbSet<Author> Author { get; set; }
         public DbSet<BookReservation> BookReservation { get; set; }
+        public DbSet<Book> Book { get; set; }
 
 
 
@@ -37,11 +38,7 @@ namespace LibraryMS.Data
                 .WithOne(e => e.Person)
                 .HasForeignKey<Person>(e => e.AddressId);
 
-            builder.Entity<BookItem>()
-                .HasOne(e => e.Book)
-                .WithMany(e => e.BookItems)
-                .HasForeignKey(e => e.BookISBN)
-                .OnDelete(DeleteBehavior.Cascade); ;
+            
 
 
         }

@@ -33,7 +33,7 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Books</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Index">Books</a>
                             </li>
                             @if (await userManager.IsInRoleAsync(account, "Admin"))
                             {

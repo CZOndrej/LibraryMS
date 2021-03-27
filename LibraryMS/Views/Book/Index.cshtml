@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Book>
+
+<h1 class="bg-primary text-white">Books Administration</h1>
+
+<table class="table table-bordered">
+    <tr>
+        <th>ISBN</th>
+        <th>Title</th>
+        <th>Author/s</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (Book book in Model)
+    {
+    <tr>
+        <td>@book.ISBN</td>
+        <td>@book.Title</td>
+        <td>
+        @foreach (Author author in book.Authors)
+        {
+            <p>@author.Name</p>
+        }
+        </td>
+        <td></td>
+    </tr>
+    }
+</table>
+
+<a class="btn btn-primary" asp-controller="Book" asp-action="Create">Add book</a>
